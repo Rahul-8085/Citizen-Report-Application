@@ -1,5 +1,7 @@
 package com.rs.service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.springframework.beans.BeanUtils;
@@ -39,6 +41,18 @@ public class ReportServiceImpl implements ReportService {
          if(null!=request.getGender() && !"".equals(request.getGender()) ) {
            entity.setGender(request.getGender());
              }
+         if(null!=request.getStartDate()&& !"".equals(request.getStartDate())) {
+        	 String startDate =request.getStartDate();
+        	 DateTimeFormatter formatter=DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        	 LocalDate localDate=LocalDate.parse(startDate,formatter);
+        	 entity.setPlanStartDate(localDate);
+         }
+         if(null!=request.getEndDate()&& !"".equals(request.getEndDate())) {
+        	 String startDate =request.getEndDate();
+        	 DateTimeFormatter formatter=DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        	 LocalDate localDate=LocalDate.parse(startDate,formatter);
+        	 entity.setPlanEndDate(localDate);
+         }
 		return planRepo.findAll(Example.of(entity));
 	}
 
