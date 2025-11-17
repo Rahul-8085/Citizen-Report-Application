@@ -22,11 +22,16 @@ public class ReportController {
 	
 	 @GetMapping("/export/excel")
 	    public void exportExcel(HttpServletResponse response) throws Exception {
-
 	        response.setContentType("application/vnd.ms-excel");
 	        response.setHeader("Content-Disposition", "attachment; filename=plans.xls");
-
 	        service.exportExcel(response);
+	    }
+	
+	 @GetMapping("/export/pdf")
+	    public void exportPDF(HttpServletResponse response) throws Exception {
+	        response.setContentType("application/pdf");
+	        response.setHeader("Content-Disposition", "attachment; filename=plans.pdf");
+	        service.exportPDF(response);
 	    }
 	
 

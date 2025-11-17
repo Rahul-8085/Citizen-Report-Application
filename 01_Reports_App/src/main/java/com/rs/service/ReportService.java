@@ -12,5 +12,5 @@ public List<String> getPlanNames();
 public List<String> getPlanStatuses();
 public List<CitizenPlan> search(SearchRequest request);
 public boolean exportExcel(HttpServletResponse response)throws Exception;
-public boolean exportPDF() ;
+public boolean exportPDF(HttpServletResponse response)throws Exception;
 }
