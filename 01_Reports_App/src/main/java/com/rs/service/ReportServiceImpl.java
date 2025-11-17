@@ -13,8 +13,12 @@ import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import com.lowagie.text.Document;
+import com.lowagie.text.Element;
+import com.lowagie.text.Font;
 import com.lowagie.text.PageSize;
 import com.lowagie.text.Paragraph;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import com.rs.entity.CitizenPlan;
@@ -119,37 +123,78 @@ public class ReportServiceImpl implements ReportService {
 
 	@Override
 	public boolean exportPDF(HttpServletResponse response) throws Exception {
-	Document document= new Document(PageSize.A4);
-	PdfWriter.getInstance(document, response.getOutputStream());
-	document.open();
-	
-	Paragraph p =new Paragraph("Citizen Plan Info");
-	document.add(p);
-	
-	PdfPTable table =new PdfPTable(8);
-	table.addCell("Id");
-	table.addCell("Gender");
-	table.addCell("Citizen Name");
-	table.addCell("PlanName");
-	table.addCell("Plan Status");
-	table.addCell("Plan Start Date");
-	table.addCell("Plan End Date");
-	table.addCell("Benefit Amount");
-	
-	List<CitizenPlan> plans = planRepo.findAll();
-	for(CitizenPlan plan: plans) {
-		table.addCell(String.valueOf(plan.getCitizenId()));
-		table.addCell(String.valueOf(plan.getGender()));
-		table.addCell(String.valueOf(plan.getCitizenName()));
-		table.addCell(String.valueOf(plan.getPlanName()));
-		table.addCell(String.valueOf(plan.getPlanStatus()));
-		table.addCell(String.valueOf(plan.getPlanStartDate()));
-		table.addCell(String.valueOf(plan.getPlanEndDate()));
-		table.addCell(String.valueOf(plan.getBenefitAmt()));
+
+	    response.setContentType("application/pdf");
+	    response.setHeader("Content-Disposition", "attachment; filename=CitizenPlans.pdf");
+
+	    Document document = new Document(PageSize.A4, 20, 20, 20, 20);
+	    PdfWriter.getInstance(document, response.getOutputStream());
+
+	    document.open();
+
+	    // ===== Title =====
+	    Font titleFont = new Font(Font.HELVETICA, 18, Font.BOLD);
+	    Paragraph title = new Paragraph("Citizen Plan Information Report", titleFont);
+	    title.setAlignment(Element.ALIGN_CENTER);
+	    title.setSpacingAfter(20);
+	    document.add(title);
+
+	    // ===== Table =====
+	    PdfPTable table = new PdfPTable(8);
+	    table.setWidthPercentage(100);
+	    table.setSpacingBefore(10);
+	    table.setSpacingAfter(10);
+
+	    // ===== Header Font =====
+	    Font headerFont = new Font(Font.HELVETICA, 11, Font.BOLD);
+
+	    String[] headers = {
+	        "ID", "Gender", "Citizen Name", "Plan Name",
+	        "Plan Status", "Plan Start Date", "Plan End Date", "Benefit Amount"
+	    };
+
+	    for (String h : headers) {
+	        PdfPCell header = new PdfPCell(new Phrase(h, headerFont));
+	        header.setHorizontalAlignment(Element.ALIGN_CENTER);
+	        header.setPadding(8);
+	        table.addCell(header);
+	    }
+
+	    // ===== Body Font =====
+	    Font bodyFont = new Font(Font.HELVETICA, 10);
+
+	    // ===== Add Rows =====
+	    List<CitizenPlan> plans = planRepo.findAll();
+
+	    for (CitizenPlan plan : plans) {
+	        table.addCell(createCell(String.valueOf(plan.getCitizenId()), bodyFont));
+	        table.addCell(createCell(plan.getGender(), bodyFont));
+	        table.addCell(createCell(plan.getCitizenName(), bodyFont));
+	        table.addCell(createCell(plan.getPlanName(), bodyFont));
+	        table.addCell(createCell(plan.getPlanStatus(), bodyFont));
+	        table.addCell(createCell(String.valueOf(plan.getPlanStartDate()), bodyFont));
+	        table.addCell(createCell(String.valueOf(plan.getPlanEndDate()), bodyFont));
+	        table.addCell(createCell(String.valueOf(plan.getBenefitAmt()), bodyFont));
+	    }
+
+	    document.add(table);
+	    document.close();
+
+	    return true;
 	}
-	document.add(table);
-	document.close();
-		return true;
+
+
+	// ===== Helper Method =====
+	private PdfPCell createCell(String text, Font font) {
+	    PdfPCell cell = new PdfPCell(new Phrase(
+	            text != null ? text : "N/A",
+	            font
+	    ));
+	    cell.setPadding(6);
+	    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	    cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	    return cell;
 	}
+
 
 }
