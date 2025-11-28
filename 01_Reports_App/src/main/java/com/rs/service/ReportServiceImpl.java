@@ -21,6 +21,7 @@ import com.lowagie.text.Phrase;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+import com.rs.controller.ReportController;
 import com.rs.entity.CitizenPlan;
 import com.rs.repo.CitizenPlanRepository;
 import com.rs.request.SearchRequest;
@@ -30,8 +31,14 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Service
 public class ReportServiceImpl implements ReportService {
+
+    private final ReportController reportController;
 	@Autowired
 	private CitizenPlanRepository planRepo;
+
+    ReportServiceImpl(ReportController reportController) {
+        this.reportController = reportController;
+    }
 
 	@Override
 	public List<String> getPlanNames() {
@@ -113,6 +120,7 @@ public class ReportServiceImpl implements ReportService {
 				dataRow.createCell(7).setCellValue("N/A");
 			}
 			dataRowIndex++;
+			System.out.println("================================");
 
 		}
 		ServletOutputStream outputstream = response.getOutputStream();
